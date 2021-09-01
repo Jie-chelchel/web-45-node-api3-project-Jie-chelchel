@@ -49,10 +49,16 @@ router.get("/:id/posts", validateUserId, (req, res) => {
   Users.getUserPosts(req.params.id).then((posts) => res.json(posts));
 });
 
-router.post("/:id/posts", validateUserId, validatePost, (req, res) => {
-  Posts.update(req.params.id, req.body).then((change) => {
-    res.json(req.body);
-  });
+router.post("/:id/posts", validateUserId, validatePost, (req, res, next) => {
+  Posts.update(req.params.id, req.body)
+    .then((record) => {
+      Posts.insert({ ...req.body, user_id: req.params.id }).then((newPost) =>
+        res.json(newPost)
+      );
+    })
+    .catch((err) => {
+      next(err);
+    });
 });
 
 //eslint-disable-next-line
