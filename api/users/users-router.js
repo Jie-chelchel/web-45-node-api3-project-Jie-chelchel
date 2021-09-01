@@ -28,32 +28,31 @@ router.get("/:id", validateUserId, (req, res) => {
 router.post("/", validateUser, (req, res) => {
   Users.insert(req.body)
     .then((user) => {
-      console.log(user);
       res.json(user);
     })
     .catch((err) => {});
 });
 
-router.put("/:id", validateUserId, (req, res) => {
-  // RETURN THE FRESHLY UPDATED USER OBJECT
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
+router.put("/:id", validateUserId, validateUser, (req, res) => {
+  Users.update(req.params.id, req.body).then((user) => {
+    res.json(user);
+  });
 });
 
 router.delete("/:id", validateUserId, (req, res) => {
-  // RETURN THE FRESHLY DELETED USER OBJECT
-  // this needs a middleware to verify user id
+  Users.remove(req.params.id).then((record) => {
+    res.json(req.user);
+  });
 });
 
 router.get("/:id/posts", validateUserId, (req, res) => {
-  // RETURN THE ARRAY OF USER POSTS
-  // this needs a middleware to verify user id
+  Users.getUserPosts(req.params.id).then((posts) => res.json(posts));
 });
 
-router.post("/:id/posts", validateUserId, (req, res) => {
-  // RETURN THE NEWLY CREATED USER POST
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
+router.post("/:id/posts", validateUserId, validatePost, (req, res) => {
+  Posts.update(req.params.id, req.body).then((change) => {
+    res.json(req.body);
+  });
 });
 
 //eslint-disable-next-line

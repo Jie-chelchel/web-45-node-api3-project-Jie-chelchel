@@ -10,8 +10,7 @@ function logger(req, res, next) {
 }
 
 function validateUserId(req, res, next) {
-  const { id } = req.params;
-  Users.getById(id)
+  Users.getById(req.params.id)
     .then((isValidUser) => {
       if (isValidUser) {
         req.user = isValidUser;
@@ -36,7 +35,11 @@ function validateUser(req, res, next) {
 }
 
 function validatePost(req, res, next) {
-  // DO YOUR MAGIC
+  if (!req.body.text || !req.body.text.trim()) {
+    res.status(400).json({ message: "missing required text field" });
+  } else {
+    next();
+  }
 }
 
 // do not forget to expose these functions to other modules
