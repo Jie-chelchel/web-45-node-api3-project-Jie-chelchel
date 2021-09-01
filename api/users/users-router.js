@@ -1,17 +1,31 @@
 const express = require("express");
-
-// You will need `users-model.js` and `posts-model.js` both
-// The middleware functions also need to be required
-
+const Users = require("./users-model");
+const Posts = require("../posts/posts-model");
 const router = express.Router();
+const {
+  logger,
+  validateUserId,
+  validateUser,
+  validatePost,
+} = require("../middleware/middleware");
+
+router.use(logger);
 
 router.get("/", (req, res) => {
-  // RETURN AN ARRAY WITH ALL THE USERS
+  Users.get()
+    .then((users) => {
+      res.status(201).json(users);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({
+        message: "Error retrieving the users",
+      });
+    });
 });
 
-router.get("/:id", (req, res) => {
-  // RETURN THE USER OBJECT
-  // this needs a middleware to verify user id
+router.get("/:id", validateUserId, (req, res) => {
+  res.json(req.user);
 });
 
 router.post("/", (req, res) => {
@@ -41,4 +55,12 @@ router.post("/:id/posts", (req, res) => {
   // and another middleware to check that the request body is valid
 });
 
-// do not forget to export the router
+//eslint-disable-next-line
+router.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    message: err.message,
+    customMessage: "Something went wrong!",
+  });
+});
+
+module.exports = router;
