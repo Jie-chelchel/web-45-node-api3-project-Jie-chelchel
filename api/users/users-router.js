@@ -8,16 +8,13 @@ const {
   validatePost,
 } = require("../middleware/middleware");
 
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
   Users.get()
     .then((users) => {
       res.status(201).json(users);
     })
-    .catch((error) => {
-      console.log(error);
-      res.status(500).json({
-        message: "Error retrieving the users",
-      });
+    .catch((err) => {
+      next(err);
     });
 });
 
@@ -25,28 +22,42 @@ router.get("/:id", validateUserId, (req, res) => {
   res.json(req.user);
 });
 
-router.post("/", validateUser, (req, res) => {
+router.post("/", validateUser, (req, res, next) => {
   Users.insert(req.body)
     .then((user) => {
       res.json(user);
     })
-    .catch((err) => {});
+    .catch((err) => {
+      next(err);
+    });
 });
 
-router.put("/:id", validateUserId, validateUser, (req, res) => {
-  Users.update(req.params.id, req.body).then((user) => {
-    res.json(user);
-  });
+router.put("/:id", validateUserId, validateUser, (req, res, next) => {
+  Users.update(req.params.id, req.body)
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      next(err);
+    });
 });
 
-router.delete("/:id", validateUserId, (req, res) => {
-  Users.remove(req.params.id).then((record) => {
-    res.json(req.user);
-  });
+router.delete("/:id", validateUserId, (req, res, next) => {
+  Users.remove(req.params.id)
+    .then((record) => {
+      res.json(req.user);
+    })
+    .catch((err) => {
+      next(err);
+    });
 });
 
-router.get("/:id/posts", validateUserId, (req, res) => {
-  Users.getUserPosts(req.params.id).then((posts) => res.json(posts));
+router.get("/:id/posts", validateUserId, (req, res, next) => {
+  Users.getUserPosts(req.params.id)
+    .then((posts) => res.json(posts))
+    .catch((err) => {
+      next(err);
+    });
 });
 
 router.post("/:id/posts", validateUserId, validatePost, (req, res, next) => {
